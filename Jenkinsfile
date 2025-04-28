@@ -2,24 +2,27 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_CRED_ID    = 'dockerhub-creds'
-    DOCKER_USER       = 'ssborde26'
-    IMAGE_NAME        = "${DOCKER_USER}/springboot-app"
-    IMAGE_TAG         = "${env.BUILD_NUMBER}"
-    FULL_IMAGE        = "${IMAGE_NAME}:${IMAGE_TAG}"
+    JAVA_HOME = "/usr/lib/jvm/java-21-openjdk-amd64" // Verify path with `update-alternatives --config java`
+    DOCKER_CRED_ID = 'dockerhub-creds'
+    DOCKER_USER = 'ssborde26'
+    IMAGE_NAME = "${DOCKER_USER}/springboot-app"
+    IMAGE_TAG = "${env.BUILD_NUMBER}"
+    FULL_IMAGE = "${IMAGE_NAME}:${IMAGE_TAG}"
   }
 
   stages {
     stage('Checkout') {
       steps {
         checkout scm
-        // Fix permissions for mvnw
-        sh 'chmod +x mvnw' 
+        sh 'chmod +x mvnw'
+        // Verify Maven Wrapper files
+        sh 'ls -la .mvn/wrapper/*'
       }
     }
 
     stage('Build JAR') {
       steps {
+        sh './mvnw --version'
         sh './mvnw clean package -DskipTests'
       }
     }
@@ -46,7 +49,6 @@ pipeline {
 
   post {
     always {
-      // Optional: Add Docker cleanup
       sh 'docker rmi ${FULL_IMAGE} || true'
       cleanWs()
     }
