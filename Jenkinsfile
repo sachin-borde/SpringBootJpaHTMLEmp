@@ -1,36 +1,53 @@
 pipeline {
-    agent any
+  agent any
 
-    environment {
-        DOCKER_IMAGE = 'yourdockerhubusername/springboot-app:latest'
+  environment {
+    DOCKER_CRED_ID    = 'dockerhub-creds'
+    DOCKER_USER       = 'ssborde26'
+    IMAGE_NAME        = "${DOCKER_USER}/springboot-app"
+    IMAGE_TAG         = "${env.BUILD_NUMBER}"
+    FULL_IMAGE        = "${IMAGE_NAME}:${IMAGE_TAG}"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/yourusername/your-springboot-repo.git'
-            }
-        }
-
-        stage('Build JAR') {
-            steps {
-                sh './mvnw clean package -DskipTests'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t $DOCKER_IMAGE ."
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                    sh "docker push $DOCKER_IMAGE"
-                }
-            }
-        }
+    stage('Build JAR') {
+      steps {
+        // Builds the Spring Boot JAR using the included Maven wrapper
+        sh './mvnw clean package -DskipTests'          // :contentReference[oaicite:6]{index=6}
+      }
     }
+
+    stage('Build Docker Image') {
+      steps {
+        script {
+          // Builds image from Dockerfile in repo root
+          dockerImage = docker.build(FULL_IMAGE)       // :contentReference[oaicite:7]{index=7}
+        }
+      }
+    }
+
+    stage('Push to Docker Hub') {
+      steps {
+        script {
+          // Authenticate and push both the build-number tag and 'latest'
+          docker.withRegistry('', "${DOCKER_CRED_ID}") {
+            dockerImage.push("${IMAGE_TAG}")           // :contentReference[oaicite:8]{index=8}
+            dockerImage.push('latest')                 // :contentReference[oaicite:9]{index=9}
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      cleanWs()  // Clean workspace after each run                        :contentReference[oaicite:10]{index=10}
+    }
+  }
 }
