@@ -2,13 +2,15 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_CRED_ID    = 'dockerhub-creds'
-    DOCKER_USER       = 'ssborde26'
-    IMAGE_NAME        = "${DOCKER_USER}/springboot-app"
-    IMAGE_TAG         = "${env.BUILD_NUMBER}"
-    FULL_IMAGE        = "${IMAGE_NAME}:${IMAGE_TAG}"
+    // Add Java home
+    JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64" // Update path for your system
+    DOCKER_CRED_ID = 'dockerhub-creds'
+    DOCKER_USER = 'ssborde26'
+    IMAGE_NAME = "${DOCKER_USER}/springboot-app"
+    IMAGE_TAG = "${env.BUILD_NUMBER}"
+    FULL_IMAGE = "${IMAGE_NAME}:${IMAGE_TAG}"
   }
-
+  
   stages {
     stage('Checkout') {
       steps {
