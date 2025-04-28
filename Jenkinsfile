@@ -10,7 +10,7 @@ pipeline {
   }
 
   stages {
-        stage('Checkout') {
+   stage('Checkout') {
       steps {
         // Explicit checkout avoids relying on job-level Branch Specifier
         checkout([$class: 'GitSCM',
