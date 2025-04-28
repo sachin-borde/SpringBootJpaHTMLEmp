@@ -13,13 +13,25 @@ pipeline {
     stage('Checkout') {
       steps {
         checkout scm
-        // Fix permissions for mvnw
-        sh 'chmod +x mvnw' 
+        sh 'chmod +x mvnw'
+        // Verify wrapper files exist
+        sh 'ls -la .mvn/wrapper/*' 
+      }
+    }
+
+    stage('Setup Java') {
+      steps {
+        // Install Java if missing (Ubuntu/Debian)
+        sh '''
+          sudo apt-get update -y
+          sudo apt-get install -y openjdk-17-jdk
+        '''
       }
     }
 
     stage('Build JAR') {
       steps {
+        sh './mvnw --version' // Verify Java setup
         sh './mvnw clean package -DskipTests'
       }
     }
