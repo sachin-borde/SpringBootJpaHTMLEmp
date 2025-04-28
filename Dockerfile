@@ -1,5 +1,5 @@
 # 1) Builder stage: compile the Spring Boot JAR
-FROM eclipse-temurin:17-jdk-jammy AS builder
+FROM eclipse-temurin:21-jdk-jammy AS builder # Match host JDK
 WORKDIR /app
 
 # Pre-fetch dependencies to leverage layer cache
