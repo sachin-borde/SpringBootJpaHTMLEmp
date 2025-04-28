@@ -10,9 +10,15 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
+        stage('Checkout') {
       steps {
-        checkout scm
+        // Explicit checkout avoids relying on job-level Branch Specifier
+        checkout([$class: 'GitSCM',
+          branches: [[name: 'master']],          // use your correct branch
+          userRemoteConfigs: [[
+            url: 'https://github.com/sachin-borde/node-dockerized-project.git'
+          ]]
+        ])
       }
     }
 
