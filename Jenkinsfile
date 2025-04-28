@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     // Add Java home
-    JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64" // Update path for your system
+    JAVA_HOME = "/usr/lib/jvm/java-21-openjdk-amd64" // Match your Java version
     DOCKER_CRED_ID = 'dockerhub-creds'
     DOCKER_USER = 'ssborde26'
     IMAGE_NAME = "${DOCKER_USER}/springboot-app"
@@ -13,12 +13,11 @@ pipeline {
   
   stages {
     stage('Checkout') {
-      steps {
-        checkout scm
-        sh 'chmod +x mvnw'
-        // Verify wrapper files exist
-        sh 'ls -la .mvn/wrapper/*' 
-      }
+        steps {
+            checkout scm
+            sh 'chmod +x mvnw'
+            sh 'ls -la .mvn/wrapper/*' // Verify files
+        }
     }
 
     stage('Setup Java') {
