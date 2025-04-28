@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringBootJPAEmployeeHTML {
+public class SpringBootJpaHTMLEmp {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringBootJPAEmployeeHTML.class, args);
+		SpringApplication.run(SpringBootJpaHTMLEmp.class, args);
 	}
 
 }
