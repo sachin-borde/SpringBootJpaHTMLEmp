@@ -13,21 +13,21 @@ pipeline {
     stage('Checkout') {
       steps {
         checkout scm
+        // Fix permissions for mvnw
+        sh 'chmod +x mvnw' 
       }
     }
 
     stage('Build JAR') {
       steps {
-        // Builds the Spring Boot JAR using the included Maven wrapper
-        sh './mvnw clean package -DskipTests'          // :contentReference[oaicite:6]{index=6}
+        sh './mvnw clean package -DskipTests'
       }
     }
 
     stage('Build Docker Image') {
       steps {
         script {
-          // Builds image from Dockerfile in repo root
-          dockerImage = docker.build(FULL_IMAGE)       // :contentReference[oaicite:7]{index=7}
+          dockerImage = docker.build(FULL_IMAGE)
         }
       }
     }
@@ -35,10 +35,9 @@ pipeline {
     stage('Push to Docker Hub') {
       steps {
         script {
-          // Authenticate and push both the build-number tag and 'latest'
           docker.withRegistry('', "${DOCKER_CRED_ID}") {
-            dockerImage.push("${IMAGE_TAG}")           // :contentReference[oaicite:8]{index=8}
-            dockerImage.push('latest')                 // :contentReference[oaicite:9]{index=9}
+            dockerImage.push("${IMAGE_TAG}")
+            dockerImage.push('latest')
           }
         }
       }
@@ -47,7 +46,9 @@ pipeline {
 
   post {
     always {
-      cleanWs()  // Clean workspace after each run                        :contentReference[oaicite:10]{index=10}
+      // Optional: Add Docker cleanup
+      sh 'docker rmi ${FULL_IMAGE} || true'
+      cleanWs()
     }
   }
 }
