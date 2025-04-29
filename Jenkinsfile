@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    JAVA_HOME = "/usr/lib/jvm/java-21-openjdk-amd64" // Verify path with `update-alternatives --config java`
+    JAVA_HOME = "/usr/lib/jvm/java-21-openjdk-amd64"
     DOCKER_CRED_ID = 'dockerhub-creds'
     DOCKER_USER = 'ssborde26'
     IMAGE_NAME = "${DOCKER_USER}/springboot-app"
@@ -14,11 +14,10 @@ pipeline {
     stage('Checkout') {
       steps {
         checkout scm
-        // Fix line endings and permissions
         sh '''
-          sed -i 's/\r$//' mvnw  # Convert CRLF to LF
+          sed -i 's/\r$//' mvnw
           chmod +x mvnw
-          ls -la .mvn/wrapper/*
+          ls -la .mvn/wrapper/maven-wrapper.jar
         '''
       }
     }
@@ -32,7 +31,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         script {
-          dockerImage = docker.build(FULL_IMAGE)
+          docker.build(FULL_IMAGE)
         }
       }
     }
@@ -41,8 +40,8 @@ pipeline {
       steps {
         script {
           docker.withRegistry('', "${DOCKER_CRED_ID}") {
-            dockerImage.push("${IMAGE_TAG}")
-            dockerImage.push('latest')
+            docker.image(FULL_IMAGE).push()
+            docker.image(FULL_IMAGE).push('latest')
           }
         }
       }
